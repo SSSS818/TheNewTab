@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>The New Tab</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/switch.css">
+</head>
+<body>
+<button id="settings-button"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 10px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        aria-haspopup="true">
+    <img src="images/add.png" style="width: 36px;vertical-align: top;">
+</button>
+<button id="save-button"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 50px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        aria-haspopup="true">
+    <img src="images/save.png" style="width: 36px;vertical-align: top;">
+</button>
+<button id="refresh-button"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 90px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        aria-haspopup="true">
+    <img src="images/refresh.png" style="width: 36px;vertical-align: top;">
+</button>
+<button id="trash-button"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 10px;offset-inline-end: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        aria-haspopup="true">
+    <img src="images/trash.svg" style="width: 36px;vertical-align: top;">
+</button>
+<div id="app">
+    <div id="loader" style="z-index: 3000" hidden>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <div id="bg">
+        <div class="main-page">
+            <main>
+                <div class="search-center">
+                    <div class="search-wrapper fade-in">
+                        <label for="newtab-search-text" class="search-label">
+                        </label>
+                        <input id="newtab-search-text" maxlength=256 placeholder="Search" autocomplete="off"
+                               aria-autocomplete="true" aria-controls="searchSuggestionTable" aria-expanded="false"
+                               type="search"/>
+                        <button id="searchSubmit" class="search-button" title="搜索">
+                        </button>
+                        <table id="contentSearchSuggestionsList" class="contentSearchSuggestionTable"
+                               role="presentation"
+                               style="top: 36px;min-width: 430px;max-width: 1048px;left: 32px;padding: 0 0 5px;" hidden>
+                        </table>
+                    </div>
+                </div>
+                <section class="top-sites" style="margin-bottom: 40px">
+                    <ul class="top-sites-list" id="top-sites">
+                    </ul>
+                </section>
+            </main>
+        </div>
+    </div>
+</div>
+<div id="settings-dialog" style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 2000;display: none;">
+    <div id="settings-page" role="dialog">
+        <section class="app">
+            <aside class="sidebar">
+                <header>Welcome</header>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="#"><img src="images/settings.png"/><span>Settings</span></a></li>
+                        <!--<li><a href="#"><img src="images/chart.png"/><span>Chart</span></a></li>-->
+                        <!--<li><a href="#"><img src="images/settings.png"/><span>Shop2</span></a></li>-->
+                        <!--<li><a href="#"><img src="images/settings.png"/><span>Shop3</span></a></li>-->
+                    </ul>
+                </nav>
+            </aside>
+        </section>
+        <div class="nav-main-wrap">
+            <div class="shadow" style="margin: 40px 50px 0;background-color: #ffffff">
+                <div>
+                    <span style="display: inline-block;margin: 15px 1.2em 15px 1em;vertical-align: top;">
+                        Open in new tab
+                    </span>
+                    <label style="display: inline-block">
+                        <input id="isOpenNewTab" type="checkbox" class="ios-switch green"/>
+                        <div>
+                            <div></div>
+                        </div>
+                    </label>
+                </div>
+                <form style="width: 400px">
+                    <label class="button-label">Site name</label>
+                    <div class="normal-input">
+                        <input id="newTabName" placeholder="Type your site name" class="normal-input-inner"
+                               autocomplete="off" googl="true" type="text">
+                        <div id="newTabName-error" class="input-error"></div>
+                    </div>
+                    <label class="button-label">Site url</label>
+                    <div class="normal-input">
+                        <input id="newTabUrl" placeholder="Type link" class="normal-input-inner"
+                               autocomplete="off" googl="true" type="text">
+                        <div id="newTabUrl-error" class="input-error"></div>
+                    </div>
+                    <label class="button-label">background resolution</label>
+                    <div class="dropdown">
+                        <button id="drop-down" class="dropbtn"></button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <a id="resolution-1280">1280 x 720</a>
+                            <a id="resolution-1920">1920 x 1080</a>
+                            <a id="resolution-2560">2560 x 1440</a>
+                        </div>
+                    </div>
+                    <div id="drop-box">
+                        <label id="drop-zone" class="drop-zone" for="file-input" googl="true">
+                            <img src="images/upload.svg" style="width: 47px;padding-top: 12px;"/>
+                            <p>Drop files here</p>
+                        </label>
+                        <input id="file-input" type="file" style="display: none">
+                    </div>
+                    <div style="padding: 15px">
+                        <button id="submitNewTab" class="normal-button normal-button-green shadow" type="button"
+                                googl="true">
+                            <span>Save</span></button>
+                        <button id="resetNewTab" style="margin-left: 20px"
+                                class="normal-button normal-button-blue shadow" type="button" googl="true">
+                            <span>Reset</span></button>
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+        <button id="settings-close" class="onboarding-close-btn" title="关闭"></button>
+    </div>
+</div>
+<script type="text/javascript" src="js/sortable.min.js"></script>
+<script type="text/javascript" src="js/newtab.js"></script>
+<script type="text/javascript" src="js/chart.min.js"></script>
+</body>
+</html>
