@@ -211,8 +211,6 @@ tbody {
 .search-wrapper input {
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 18px;
-    -webkit-box-shadow: 0px 0px 1px 0px rgba(45,45,45,0.68);
-    box-shadow: 0px 0px 1px 0px rgba(45,45,45,0.68);
     color: inherit;
     padding: 0;
     padding-inline-end: 40px;
