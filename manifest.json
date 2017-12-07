@@ -21,12 +21,9 @@
   "permissions": [
     "<all_urls>",
     "downloads",
-    "bookmarks",
-    "history",
     "storage",
     "tabs",
-    "topSites",
-    "webNavigation"
+    "activeTab"
   ],
   "chrome_url_overrides": {
     "newtab": "./src/index.html"
