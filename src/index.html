@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="css/switch.css">
 </head>
 <body>
+
+<div id="notifications-tc" class="notifications-wrapper">
+</div>
+
 <button id="settings-button"
         style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 10px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
         aria-haspopup="true">
@@ -97,6 +101,15 @@
                         </div>
                     </label>
                 </div>
+                <label class="button-label">resolution</label>
+                <div class="dropdown">
+                    <button id="drop-down" class="dropbtn"></button>
+                    <div id="myDropdown" class="dropdown-content">
+                        <a id="resolution-1280">1280 x 720</a>
+                        <a id="resolution-1920">1920 x 1080</a>
+                        <a id="resolution-2560">2560 x 1440</a>
+                    </div>
+                </div>
                 <form style="width: 400px">
                     <label class="button-label">Site name</label>
                     <div class="normal-input">
@@ -109,15 +122,6 @@
                         <input id="newTabUrl" placeholder="Type link" class="normal-input-inner"
                                autocomplete="off" googl="true" type="text">
                         <div id="newTabUrl-error" class="input-error"></div>
-                    </div>
-                    <label class="button-label">background resolution</label>
-                    <div class="dropdown">
-                        <button id="drop-down" class="dropbtn"></button>
-                        <div id="myDropdown" class="dropdown-content">
-                            <a id="resolution-1280">1280 x 720</a>
-                            <a id="resolution-1920">1920 x 1080</a>
-                            <a id="resolution-2560">2560 x 1440</a>
-                        </div>
                     </div>
                     <div id="drop-box">
                         <label id="drop-zone" class="drop-zone" for="file-input" googl="true">

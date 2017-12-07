@@ -339,7 +339,6 @@ tbody {
     opacity: 1;
     -webkit-animation: fade-opacity 0.3s ease;
     -moz-animation: fade-opacity ease-in-out 0.3s both;
-    -ms-animation: fade-opacity ease-in-out 0.3s both;
     -o-animation: fade-opacity ease-in-out 0.3s both;
     animation: fade-opacity 0.3s ease;
 }
@@ -355,9 +354,81 @@ tbody {
 .fade-in {
     -webkit-animation: fade-in 1s ease;
     -moz-animation: fade-in ease-in-out 1s both;
-    -ms-animation: fade-in ease-in-out 1s both;
     -o-animation: fade-in ease-in-out 1s both;
     animation: fade-in 1s ease;
+}
+
+@keyframes bounceInDown {
+    from, 60%, 75%, 90%, to {
+        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    }
+
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -300px, 0);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translate3d(0, 25px, 0);
+    }
+
+    75% {
+        transform: translate3d(0, -10px, 0);
+    }
+
+    90% {
+        transform: translate3d(0, 5px, 0);
+    }
+
+    to {
+        transform: none;
+    }
+}
+
+.bounceInDown {
+    animation-name: bounceInDown;
+}
+
+@keyframes bounceOutUp {
+    20% {
+        transform: translate3d(0, -10px, 0);
+    }
+
+    40%, 45% {
+        opacity: 1;
+        transform: translate3d(0, 20px, 0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate3d(0, -200px, 0);
+    }
+}
+
+.bounceOutUp {
+    animation-name: bounceOutUp;
+}
+
+.animated {
+    -webkit-animation-fill-mode: both;
+    -moz-animation-fill-mode: both;
+    -ms-animation-fill-mode: both;
+    -o-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-duration: 1s;
+    -moz-animation-duration: 1s;
+    -ms-animation-duration: 1s;
+    -o-animation-duration: 1s;
+    animation-duration: 1s;
+}
+
+.animated.hinge {
+    -webkit-animation-duration: 2s;
+    -moz-animation-duration: 2s;
+    -ms-animation-duration: 2s;
+    -o-animation-duration: 2s;
+    animation-duration: 2s;
 }
 
 /* shake */
@@ -609,6 +680,67 @@ tbody {
     display: none;
 }
 
+.notifications-wrapper {
+    position: fixed;
+    width: 480px;
+    padding: 0px 10px 10px;
+    z-index: 9998;
+    box-sizing: border-box;
+    height: auto;
+    top: 0px;
+    bottom: auto;
+    margin: 0px auto 0px -240px;
+    left: 50%;
+}
+
+.notification-info {
+    background-color: rgb(80, 191, 255);
+}
+
+.notification-warning {
+    background-color: rgb(247, 186, 42);
+}
+
+.notification-success {
+    background-color: rgb(19, 206, 102);
+}
+
+.notification-error {
+    background-color: rgb(255, 73, 73);
+}
+
+.notification {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 13px;
+    margin: 10px 0px 0px;
+    padding: 10px 16px;
+    display: table;
+    box-sizing: border-box;
+    overflow: hidden;
+    /*transition: all 0.6s ease-in-out 0s;*/
+    /*transform: translate3d(0px, 0px, 0px);*/
+    color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 8px;
+    top: 0px;
+    height: 59px;
+}
+
+.notification-title {
+    font-size: 14px;
+    margin: 0px 0px 5px;
+    padding: 0px;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+}
+
+.notification-message {
+    margin: 0px;
+    padding: 0px;
+}
+
 /* Dropdown Button */
 .dropbtn {
     background-color: #20A0FF;
@@ -619,8 +751,9 @@ tbody {
     border: none;
     cursor: pointer;
     border-radius: 4px;
-    width:110px;
+    width: 110px;
 }
+
 /* todo reduce css */
 .dropdown {
     width: 200px;
@@ -629,6 +762,7 @@ tbody {
     display: table-caption;
     position: relative;
 }
+
 .dropdown:hover .dropdown-content {
     display: block;
 }
@@ -637,7 +771,7 @@ tbody {
     display: none;
     position: absolute;
     background-color: #f9f9f9;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     width: 110px;
 }
@@ -650,9 +784,14 @@ tbody {
     background: #fff;
     text-align: center;
 }
-.dropdown-content a:hover {background-color: #dedede  }
 
-.show {display:block;}
+.dropdown-content a:hover {
+    background-color: #dedede
+}
+
+.show {
+    display: block;
+}
 
 .onboarding-close-btn::before {
     content: url("chrome://global/skin/icons/close.svg");

@@ -9,11 +9,11 @@
     window["NewTab"] = factory();
 })(function newTabFactory() {
     "use strict";
-    let last,
-        fileData,
+    let fileData,
         sortable,
-        current_tabs = null,
-        captureMode = false;
+        currentTabs = null,
+        captureMode = false,
+        notificationTimer=null;
 
     /**
      * @const
@@ -72,7 +72,9 @@
             'rgba(255, 29, 29, 0.4)',
             'rgba(29, 130, 255, 0.4)'
         ],
-        UNKNOWN = 'unknown.jpg';
+        UNKNOWN = 'unknown.jpg',
+        INFO = 'info',
+        ERROR = 'error';
 
     /**
      * @class TrashButton
@@ -92,9 +94,9 @@
             let chosen = document.getElementsByClassName('sortable-chosen')[0];
             if (chosen) {
                 chosen.parentNode.removeChild(chosen);
-                let index = current_tabs.indexOf(chosen.id);
+                let index = currentTabs.indexOf(chosen.id);
                 if (index > -1) {
-                    current_tabs.splice(index, 1);
+                    currentTabs.splice(index, 1);
                 }
             }
 
@@ -102,7 +104,7 @@
             void this.el.offsetWidth;
             this.el.classList.add('trash-shake');
             await browser.storage.local.set({
-                tabs: current_tabs
+                tabs: currentTabs
             });
         };
 
@@ -248,13 +250,14 @@
         new SearchInput(searchInput);
         new SuggestList(suggestList);
 
-        // change resolution todo notify
+        // change resolution
         function changeResolution(e) {
             e.preventDefault();
             let resolute = {1280: '1280x720', 1920: '1920x1080', 2560: '2560x1440'}[this.id.slice(11)];
             browser.storage.local.set({
                 resolution: resolute
             });
+            showMessage('Success','Current resolution is '+resolute);
             document.getElementById('drop-down').textContent = resolute;
         }
 
@@ -262,6 +265,14 @@
         document.getElementById("resolution-1920").onclick = changeResolution;
         document.getElementById("resolution-2560").onclick = changeResolution;
 
+        document.getElementById('notifications-tc').onclick = () => {
+            let no =  document.getElementById('notification');
+            no.classList.remove('bounceInDown');
+            no.classList.add('bounceOutUp');
+            if (notificationTimer){
+                clearTimeout(notificationTimer);
+            }
+        };
 
         // settings button
         document.getElementById('settings-button').onclick = () => {
@@ -272,7 +283,7 @@
         document.getElementById('refresh-button').onclick = () => {
             document.getElementById('loader').style.display = 'block';
             document.getElementById('bg').classList.add('frosting');
-            browser.storage.local.get('resolution').then((r)=>{
+            browser.storage.local.get('resolution').then((r) => {
                 randomBackground(r.resolution)
             })
 
@@ -316,15 +327,20 @@
             if (!validateUrl(newTabUrl.value)) {
                 document.getElementById('newTabUrl-error').innerHTML = 'Invalid url';
                 document.getElementById('newTabUrl-error').style.display = 'block';
-                return
+
             }
             browser.storage.local.get({tabs: DEFAULT_TABS, sites: DEFAULT_SITES, isOpenNewTab: true}).then((r) => {
                 if (!newTabName.value) {
                     document.getElementById('newTabName-error').innerHTML = 'Please type your site name';
                     document.getElementById('newTabName-error').style.display = 'block';
+                    showMessage('Error', 'Invalid input', ERROR);
+
                 } else if (newTabName.value in r.tabs) {
+
                     document.getElementById('newTabName-error').innerHTML = 'Site name already exist';
                     document.getElementById('newTabName-error').style.display = 'block';
+                    showMessage('Error', 'Invalid input', ERROR);
+
                 } else {
                     let tmp_sites = r.sites, tmp_tabs = r.tabs;
                     tmp_sites[newTabName.value] = [fileData, newTabUrl.value];
@@ -368,7 +384,7 @@
                 resolution: '1920x1080'
             });
         }
-        current_tabs = r.tabs;
+        currentTabs = r.tabs;
         console.log(r)
         return r;
     };
@@ -392,12 +408,13 @@
     };
 
     let _renderPage = (r) => {
-        let sites = '', openNewTabToggle = document.getElementById('isOpenNewTab'),drop = document.getElementById('drop-down');
+        let sites = '', openNewTabToggle = document.getElementById('isOpenNewTab'),
+            drop = document.getElementById('drop-down');
         openNewTabToggle.checked = r.isOpenNewTab;
         drop.textContent = r.resolution;
 
         if (r.bgIsRandom) {
-            setBackground(r.today_bg,r.resolution);
+            setBackground(r.today_bg, r.resolution);
         } else {
             // todo custom image
         }
@@ -438,11 +455,24 @@
         }
     }
 
+    let showMessage = (title, message, type = INFO) => {
+        let _notify = document.getElementById('notifications-tc');
+        _notify.innerHTML = `<div id="notification" class="notification animated bounceInDown notification-`+ type +`">
+                             <h4 id="notification-title" class="notification-title" googl="true">`+title+`</h4>
+                             <div id="notification-message" class="notification-message">`+message+`</div>
+                             </div>`;
+        notificationTimer = setTimeout(function() {
+            let no =  document.getElementById('notification');
+            no.classList.remove('bounceInDown');
+            no.classList.add('bounceOutUp');
+        }, 2000);
+    };
+
     let randomBackground = (resolution) => {
         let _today_ = new Date();
         let dd = _today_.getDate(), mm = _today_.getMonth() + 1, yyyy = _today_.getFullYear();
         let xhr = new XMLHttpRequest();
-        xhr.open("GET", 'https://source.unsplash.com/user/tracyda/likes/'+resolution);
+        xhr.open("GET", 'https://source.unsplash.com/user/tracyda/likes/' + resolution);
         xhr.addEventListener("load", function storeRedirectUrl() {
             let bg = document.getElementById('bg');
             bg.style.backgroundImage = 'url(' + this.responseURL + ')';
@@ -458,7 +488,7 @@
         xhr.send();
     };
 
-    let setBackground = async (today_bg,resolution) => {
+    let setBackground = async (today_bg, resolution) => {
         let _today_ = new Date();
         let dd = _today_.getDate(), mm = _today_.getMonth() + 1, yyyy = _today_.getFullYear();
         if (!today_bg || today_bg[0] !== [yyyy, mm, dd].join('-')) {
@@ -500,6 +530,8 @@
         browser.downloads.download({
             url: download_url,
             filename: tmp[tmp.length - 1] + '.jpg',
+        }).then(() => {
+            showMessage('Success', 'File name is ' + tmp[tmp.length - 1] + '.jpg')
         });
     };
 
