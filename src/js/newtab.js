@@ -437,12 +437,13 @@
         xhr.open("GET", 'https://source.unsplash.com/user/tracyda/likes/' + resolution);
         xhr.addEventListener("load", function storeRedirectUrl() {
             let bg = document.getElementById('bg');
+            bg.classList.add('fade-in');
             bg.style.backgroundImage = 'url(' + this.responseURL + ')';
-            // set time out to fetch image data
-            setTimeout(() => {
-                bg.classList.remove('frosting');
-                document.getElementById('loader').style.display = 'none';
-            }, 500);
+            setTimeout(()=>{
+                bg.classList.remove('fade-in');
+            },500);
+            bg.classList.remove('frosting');
+            document.getElementById('loader').style.display = 'none';
             local.set({
                 today_bg: [[yyyy, mm, dd].join('-'), this.responseURL]
             })

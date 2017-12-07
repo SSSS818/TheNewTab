@@ -351,10 +351,10 @@ tbody {
 }
 
 .fade-in {
-    -webkit-animation: fade-in 1s ease;
-    -moz-animation: fade-in ease-in-out 1s both;
-    -o-animation: fade-in ease-in-out 1s both;
-    animation: fade-in 1s ease;
+    -webkit-animation: fade-in 1.5s ease;
+    -moz-animation: fade-in ease-in-out 1.5 both;
+    -o-animation: fade-in ease-in-out 1.5s both;
+    animation: fade-in 1.5s ease;
 }
 
 @keyframes bounceInDown {
