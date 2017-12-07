@@ -13,6 +13,7 @@
         currentTabs = null,
         captureMode = false,
         notificationTimer = null;
+    let download = browser.downloads.download, local = browser.storage.local;
     /**
      * @const
      */
@@ -80,7 +81,7 @@
             this.el.classList.remove('trash-shake');
             void this.el.offsetWidth;
             this.el.classList.add('trash-shake');
-            await browser.storage.local.set({
+            await local.set({
                 tabs: currentTabs
             });
         };
@@ -235,7 +236,7 @@
             e.preventDefault();
             let resolute = {1280: '1280x720', 1920: '1920x1080', 2560: '2560x1440'}[this.id.slice(11)];
             document.getElementById('drop-down').textContent = resolute;
-            browser.storage.local.set({
+            local.set({
                 resolution: resolute
             }).then(() => {
                 showMessage('Success', 'Current resolution is ' + resolute, SUCCESS);
@@ -264,13 +265,13 @@
         document.getElementById('refresh-button').onclick = () => {
             document.getElementById('loader').style.display = 'block';
             document.getElementById('bg').classList.add('frosting');
-            browser.storage.local.get('resolution').then((r) => {
+            local.get('resolution').then((r) => {
                 randomBackground(r.resolution);
             });
         };
         // reset button
         document.getElementById('resetNewTab').onclick = () => {
-            browser.storage.local.set(DEFAULT_CONFIG);
+            local.set(DEFAULT_CONFIG);
             _renderPage(DEFAULT_CONFIG)
         };
         // close settings
@@ -281,7 +282,7 @@
         // todo default bg change animation
         // set open in new tab
         document.getElementById('isOpenNewTab').onclick = function (e) {
-            browser.storage.local.set({
+            local.set({
                 isOpenNewTab: e.target.checked
             }).then(() => {
                 showMessage('Success', 'Takes effect next time', SUCCESS)
@@ -308,7 +309,7 @@
                 showMessage('Error', 'Invalid input', ERROR);
                 return;
             }
-            browser.storage.local.get({tabs: DEFAULT_TABS, sites: DEFAULT_SITES, isOpenNewTab: true}).then((r) => {
+            local.get({tabs: DEFAULT_TABS, sites: DEFAULT_SITES, isOpenNewTab: true}).then((r) => {
                 if (!newTabName.value) {
                     document.getElementById('newTabName-error').innerHTML = 'Please type your site name';
                     document.getElementById('newTabName-error').style.display = 'block';
@@ -321,7 +322,7 @@
                     let tmp_sites = r.sites, tmp_tabs = r.tabs;
                     tmp_sites[newTabName.value] = [fileData, newTabUrl.value];
                     tmp_tabs.push(newTabName.value);
-                    browser.storage.local.set({
+                    local.set({
                         tabs: tmp_tabs,
                         sites: tmp_sites,
                     });
@@ -340,12 +341,13 @@
 
     // todo add cloud sync
     let _getUserConfig = async () => {
-        let r = await browser.storage.local.get(DEFAULT_CONFIG);
+        let r = await local.get(DEFAULT_CONFIG);
         if (r.is_1st) {
-            await browser.storage.local.set(DEFAULT_CONFIG);
+            await local.set(DEFAULT_CONFIG);
         }
         currentTabs = r.tabs;
-        console.log(r)
+        // todo console
+        console.log(r);
         return r;
     };
 
@@ -441,7 +443,7 @@
                 bg.classList.remove('frosting');
                 document.getElementById('loader').style.display = 'none';
             }, 500);
-            browser.storage.local.set({
+            local.set({
                 today_bg: [[yyyy, mm, dd].join('-'), this.responseURL]
             })
         });
@@ -452,7 +454,7 @@
         let _today_ = new Date();
         let dd = _today_.getDate(), mm = _today_.getMonth() + 1, yyyy = _today_.getFullYear();
         if (!today_bg || today_bg[0] !== [yyyy, mm, dd].join('-')) {
-            randomBackground(resolution)
+            await randomBackground(resolution)
         } else {
             document.getElementById('bg').style.backgroundImage = 'url(' + today_bg[1] + ')';
         }
@@ -487,7 +489,7 @@
     let saveBg = () => {
         let download_url = document.getElementById('bg').style.backgroundImage.slice(5, -2);
         let tmp = download_url.split('=');
-        browser.downloads.download({
+        download({
             url: download_url,
             filename: tmp[tmp.length - 1] + '.jpg',
         }).then(() => {
