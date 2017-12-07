@@ -6,73 +6,52 @@
 
 (function newTabModule(factory) {
     "use strict";
-    window["NewTab"] = factory();
+    window.NewTab = factory();
 })(function newTabFactory() {
     "use strict";
-    let last,
-        fileData,
-        sortable,
-        current_tabs = null,
-        captureMode = false;
-
+    let fileData = null,
+        currentTabs = null,
+        captureMode = false,
+        notificationTimer = null;
     /**
      * @const
      */
     let DEFAULT_SITES = {
-            '微博': ['weibo.png', 'https://weibo.com'],
-            '知乎': ['zhihu.png', 'https://zhihu.com'],
-            'Google': ['google.png', 'https://google.com'],
-            '什么值得买': ['smzdm.png', 'https://www.smzdm.com'],
-            'Twitter': ['twitter.png', 'https://twitter.com'],
-            'Facebook': ['facebook.png', 'https://facebook.com'],
-            '哔哩哔哩': ['bilibili.png', 'https://www.bilibili.com'],
-            'Dribbble': ['dribbble.png', 'https://dribbble.com'],
-            'Stackoverflow': ['stackoverflow.png', 'https://stackoverflow.com'],
-            'Tumblr': ['tumblr.png', 'https://tumblr.com'],
-            'Github': ['github.png', 'https://github.com'],
-            '淘宝': ['taobao.png', 'https://taobao.com'],
-            '500px': ['500px.png', 'https://500px.com'],
-            'Google+': ['googleplus.png', 'https://plus.google.com'],
-            '斗鱼': ['douyu.png', 'https://douyu.com'],
-            '豆瓣': ['douban.png', 'https://douban.com'],
-            '图虫': ['tuchong.png', 'https://tuchong.com'],
-            'v2ex': ['v2ex.png', 'https://v2ex.com'],
-            'instagram': ['instagram.png', 'https://instagram.com'],
-            'chiphell': ['chiphell.png', 'https://chiphell.com'],
-            'Reddit': ['reddit.png', 'https://reddit.com']
+            "微博": ["weibo.png", "https://weibo.com/"],
+            "知乎": ["zhihu.png", "https://www.zhihu.com/"],
+            "什么值得买": ["smzdm.png", "https://www.smzdm.com/"],
+            "Twitter": ["twitter.png", "https://twitter.com/"],
+            "哔哩哔哩": ["bilibili.png", "https://www.bilibili.com/"],
+            "Dribbble": ["dribbble.png", "https://dribbble.com/"],
+            "Stackoverflow": ["stackoverflow.png", "https://stackoverflow.com/"],
+            "Tumblr": ["tumblr.png", "https://tumblr.com/"],
+            "Github": ["github.png", "https://github.com/"],
+            "淘宝": ["taobao.png", "https://taobao.com/"],
+            "500px": ["500px.png", "https://500px.com/"],
+            "Google+": ["googleplus.png", "https://plus.google.com/"],
+            "斗鱼": ["douyu.png", "https://douyu.com/"],
+            "图虫": ["tuchong.png", "https://tuchong.com/"],
+            "v2ex": ["v2ex.png", "https://v2ex.com/"],
+            "instagram": ["instagram.png", "https://instagram.com/"],
+            "chiphell": ["chiphell.png", "https://chiphell.com/"],
+            "Reddit": ["reddit.png", "https://reddit.com/"]
         },
         DEFAULT_TABS = [
-            '知乎', '微博', '哔哩哔哩', 'Twitter', 'Dribbble', '什么值得买', 'Stackoverflow', 'Tumblr', 'Github', '淘宝', '500px', 'Google+', '斗鱼', 'Reddit', '图虫', 'v2ex', 'instagram', 'chiphell'
+            "知乎", "微博", "哔哩哔哩", "Twitter", "Dribbble", "什么值得买", "Stackoverflow", "Tumblr", "Github", "淘宝", "500px", "Google+", "斗鱼", "Reddit", "图虫", "v2ex", "instagram", "chiphell"
         ],
-        BORDER_COLOR = [
-            'rgba(0, 209, 178, 0.7)',
-            'rgba(50, 115, 220, 0.7)',
-            'rgba(255, 56, 96, 0.7)',
-            'rgba(30, 215, 96, 0.7)',
-            'rgba(234, 198, 53, 0.7)',
-            'rgba(255, 76, 192, 0.7)',
-            'rgba(131, 45, 255, 0.7)',
-            'rgba(58, 209, 255, 0.7)',
-            'rgba(159, 212, 35, 0.7)',
-            'rgba(255, 81, 29, 0.7)',
-            'rgba(255, 29, 29, 0.7)',
-            'rgba(29, 130, 255, 0.7)'
-        ],
-        BACKGROUND_COLOR = [
-            'rgba(0, 209, 178, 0.4)',
-            'rgba(50, 115, 220, 0.4)',
-            'rgba(255, 56, 96, 0.4)',
-            'rgba(30, 215, 96, 0.4)',
-            'rgba(234, 198, 53, 0.4)',
-            'rgba(255, 76, 192, 0.4)',
-            'rgba(131, 45, 255, 0.4)',
-            'rgba(58, 209, 255, 0.4)',
-            'rgba(159, 212, 35, 0.4)',
-            'rgba(255, 81, 29, 0.4)',
-            'rgba(255, 29, 29, 0.4)',
-            'rgba(29, 130, 255, 0.4)'
-        ],
-        UNKNOWN = 'unknown.jpg';
+        DEFAULT_CONFIG = {
+            is_1st: false,
+            isOpenNewTab: true,
+            tabs: DEFAULT_TABS,
+            sites: DEFAULT_SITES,
+            bgIsRandom: true,
+            today_bg: [],
+            resolution: '1920x1080'
+        },
+        UNKNOWN = "unknown.jpg",
+        INFO = "info",
+        SUCCESS = "success",
+        ERROR = "error";
 
     /**
      * @class TrashButton
@@ -82,19 +61,19 @@
     function TrashButton(el) {
         this.el = el;
 
-        this._dragEnd = (e) => {
+        this.dragEnd = (e) => {
             e.preventDefault();
         };
 
-        this._onDelete = async (e) => {
+        this.onDelete = async (e) => {
             e.preventDefault();
             this.el.childNodes[1].style.width = 42;
             let chosen = document.getElementsByClassName('sortable-chosen')[0];
             if (chosen) {
                 chosen.parentNode.removeChild(chosen);
-                let index = current_tabs.indexOf(chosen.id);
+                let index = currentTabs.indexOf(chosen.id);
                 if (index > -1) {
-                    current_tabs.splice(index, 1);
+                    currentTabs.splice(index, 1);
                 }
             }
 
@@ -102,12 +81,12 @@
             void this.el.offsetWidth;
             this.el.classList.add('trash-shake');
             await browser.storage.local.set({
-                tabs: current_tabs
+                tabs: currentTabs
             });
         };
 
-        _on(this.el, 'dragend', this._dragEnd);
-        _on(this.el, 'dragenter', this._onDelete);
+        _on(this.el, 'dragend', this.dragEnd);
+        _on(this.el, 'dragenter', this.onDelete);
     }
 
     /**
@@ -118,10 +97,10 @@
     function SuggestList(el) {
         this.el = el;
 
-        this._oClick = (e) => {
+        this.onClick = (e) => {
             openSearchTab(e.target.textContent);
         };
-        this._onMouseMove = (e) => {
+        this.onMouseMove = (e) => {
             if (e.target.tagName === 'SPAN') {
                 let id = e.target.id.slice(16);
                 document.getElementById('selectedRow' + id).classList.add('selected');
@@ -129,8 +108,8 @@
             }
         };
 
-        _on(this.el, 'mouseover', this._onMouseMove);
-        _on(this.el, 'click', this._oClick);
+        _on(this.el, 'mouseover', this.onMouseMove);
+        _on(this.el, 'click', this.onClick);
     }
 
 
@@ -144,13 +123,13 @@
         this.current = -1;
         this.init = true;
 
-        this._onFocus = () => {
+        this.onFocus = () => {
             let table = document.getElementById('contentSearchSuggestionsList');
             if (table.childNodes[0].childNodes.length > 0) {
-                table.style.display = 'block'
+                table.style.display = 'block';
             }
         };
-        this._getAutoComplete = (e) => {
+        this.getAutoComplete = (e) => {
             let xhr = new XMLHttpRequest();
             xhr.open("GET", 'http://suggestqueries.google.com/complete/search?client=firefox&q=' + e.target.value);
             xhr.addEventListener("load", _genSuggests);
@@ -158,7 +137,7 @@
             this.current = -1;
             this.init = true;
         };
-        this._onKeyDown = (e) => {
+        this.onKeyDown = (e) => {
             let KEY_RETURN = 13;
             let KEY_UP = 38;
             let KEY_DOWN = 40;
@@ -190,14 +169,15 @@
                 let currentRow = document.getElementById('selectedRow' + this.current);
                 let lastRow = document.getElementById('selectedRow' + last);
                 currentRow.classList.add('selected');
-                if (lastRow && (this.current !== last || last !== 5))
+                if (lastRow && (this.current !== last || last !== 5)) {
                     lastRow.classList.remove('selected');
+                }
             }
         };
 
-        _on(this.el, 'keypress', this._onKeyDown);
-        _on(this.el, 'input', this._getAutoComplete);
-        _on(this.el, 'focus', this._onFocus);
+        _on(this.el, 'keypress', this.onKeyDown);
+        _on(this.el, 'input', this.getAutoComplete);
+        _on(this.el, 'focus', this.onFocus);
     }
 
     /**
@@ -208,25 +188,25 @@
     function DropZone(el) {
         this.el = el;
 
-        this._handleFileDrop = (evt) => {
+        this.handleFileDrop = (evt) => {
             evt.stopPropagation();
             evt.preventDefault();
             let f = evt.dataTransfer.files[0];
             if (f.size > 1024 * 60) {
-                alert('Your image is too large, we suggest you use an image less than 100kb')
+                alert('Your image is too large, we suggest you use an image less than 60kb')
             } else {
                 getBase64(f)
             }
         };
 
-        this._handleDragOver = (evt) => {
+        this.handleDragOver = (evt) => {
             evt.stopPropagation();
             evt.preventDefault();
             evt.dataTransfer.dropEffect = 'copy';
         };
 
-        _on(this.el, 'dragover', this._handleDragOver);
-        _on(this.el, 'drop', this._handleFileDrop);
+        _on(this.el, 'dragover', this.handleDragOver);
+        _on(this.el, 'drop', this.handleFileDrop);
     }
 
     /**
@@ -234,10 +214,11 @@
      * @constructor
      */
     function NewTab() {
+        "use strict";
         _getUserConfig().then(_renderPage);
         // make sites sortable
         let el = document.getElementById('top-sites');
-        sortable = Sortable.create(el);
+        Sortable.create(el);
 
         let searchInput = document.getElementById('newtab-search-text');
         let suggestList = document.getElementById('contentSearchSuggestionsList');
@@ -248,20 +229,31 @@
         new SearchInput(searchInput);
         new SuggestList(suggestList);
 
-        // change resolution todo notify
+
+        // change resolution
         function changeResolution(e) {
             e.preventDefault();
             let resolute = {1280: '1280x720', 1920: '1920x1080', 2560: '2560x1440'}[this.id.slice(11)];
+            document.getElementById('drop-down').textContent = resolute;
             browser.storage.local.set({
                 resolution: resolute
+            }).then(() => {
+                showMessage('Success', 'Current resolution is ' + resolute, SUCCESS);
             });
-            document.getElementById('drop-down').textContent = resolute;
         }
 
         document.getElementById("resolution-1280").onclick = changeResolution;
         document.getElementById("resolution-1920").onclick = changeResolution;
         document.getElementById("resolution-2560").onclick = changeResolution;
 
+        document.getElementById('notifications-tc').onclick = () => {
+            let no = document.getElementById('notification');
+            no.classList.remove('bounceInDown');
+            no.classList.add('bounceOutUp');
+            if (notificationTimer) {
+                clearTimeout(notificationTimer);
+            }
+        };
 
         // settings button
         document.getElementById('settings-button').onclick = () => {
@@ -272,30 +264,27 @@
         document.getElementById('refresh-button').onclick = () => {
             document.getElementById('loader').style.display = 'block';
             document.getElementById('bg').classList.add('frosting');
-            browser.storage.local.get('resolution').then((r)=>{
-                randomBackground(r.resolution)
-            })
-
+            browser.storage.local.get('resolution').then((r) => {
+                randomBackground(r.resolution);
+            });
         };
         // reset button
         document.getElementById('resetNewTab').onclick = () => {
-            browser.storage.local.set({
-                is_1st: false,
-                tabs: DEFAULT_TABS,
-                isOpenNewTab: true,
-                sites: DEFAULT_SITES,
-                bgIsRandom: true
-            });
-            _renderPage({isOpenNewTab: true, sites: DEFAULT_SITES, tabs: DEFAULT_TABS})
+            browser.storage.local.set(DEFAULT_CONFIG);
+            _renderPage(DEFAULT_CONFIG)
         };
         // close settings
         document.getElementById('settings-close').onclick = () => {
             document.getElementById('settings-dialog').style.display = "none";
+            // todo clear data
         };
+        // todo default bg change animation
         // set open in new tab
         document.getElementById('isOpenNewTab').onclick = function (e) {
             browser.storage.local.set({
                 isOpenNewTab: e.target.checked
+            }).then(() => {
+                showMessage('Success', 'Takes effect next time', SUCCESS)
             });
         };
         // search submit
@@ -316,15 +305,18 @@
             if (!validateUrl(newTabUrl.value)) {
                 document.getElementById('newTabUrl-error').innerHTML = 'Invalid url';
                 document.getElementById('newTabUrl-error').style.display = 'block';
-                return
+                showMessage('Error', 'Invalid input', ERROR);
+                return;
             }
             browser.storage.local.get({tabs: DEFAULT_TABS, sites: DEFAULT_SITES, isOpenNewTab: true}).then((r) => {
                 if (!newTabName.value) {
                     document.getElementById('newTabName-error').innerHTML = 'Please type your site name';
                     document.getElementById('newTabName-error').style.display = 'block';
+                    showMessage('Error', 'Invalid input', ERROR);
                 } else if (newTabName.value in r.tabs) {
                     document.getElementById('newTabName-error').innerHTML = 'Site name already exist';
                     document.getElementById('newTabName-error').style.display = 'block';
+                    showMessage('Error', 'Invalid input', ERROR);
                 } else {
                     let tmp_sites = r.sites, tmp_tabs = r.tabs;
                     tmp_sites[newTabName.value] = [fileData, newTabUrl.value];
@@ -334,7 +326,6 @@
                         sites: tmp_sites,
                     });
                     document.getElementById('top-sites').innerHTML += _genAtom(newTabName.value, newTabUrl.value, fileData, r.isOpenNewTab);
-                    console.log(tmp_tabs, tmp_sites, fileData)
                     // reset fileData
                     fileData = null;
                 }
@@ -343,32 +334,17 @@
     }
 
     NewTab.create = () => {
+        "use strict";
         return new NewTab();
     };
 
-    // TODO add cloud sync
+    // todo add cloud sync
     let _getUserConfig = async () => {
-        let r = await browser.storage.local.get({
-            is_1st: true,
-            tabs: DEFAULT_TABS,
-            isOpenNewTab: true,
-            sites: DEFAULT_SITES,
-            bgIsRandom: true,
-            today_bg: [],
-            resolution: '1920x1080'
-        });
+        let r = await browser.storage.local.get(DEFAULT_CONFIG);
         if (r.is_1st) {
-            await browser.storage.local.set({
-                is_1st: false,
-                tabs: DEFAULT_TABS,
-                isOpenNewTab: true,
-                sites: DEFAULT_SITES,
-                bgIsRandom: true,
-                today_bg: [],
-                resolution: '1920x1080'
-            });
+            await browser.storage.local.set(DEFAULT_CONFIG);
         }
-        current_tabs = r.tabs;
+        currentTabs = r.tabs;
         console.log(r)
         return r;
     };
@@ -376,7 +352,7 @@
     let _genAtom = (title, link, img, isOpenNewTab) => {
         let bg = 'url(./images/sites/unknown.jpg);';
         if (img) {
-            bg = img.startsWith('data:image') ? 'url(' + img + ')' : 'url(./images/sites/' + img + ');';
+            bg = img.startsWith('data:image') || img.startsWith('http') ? 'url(' + img + ')' : 'url(./images/sites/' + img + ');';
         }
         if (!link.startsWith('http')) {
             link = 'http://' + link
@@ -392,12 +368,13 @@
     };
 
     let _renderPage = (r) => {
-        let sites = '', openNewTabToggle = document.getElementById('isOpenNewTab'),drop = document.getElementById('drop-down');
+        let sites = '', openNewTabToggle = document.getElementById('isOpenNewTab'),
+            drop = document.getElementById('drop-down');
         openNewTabToggle.checked = r.isOpenNewTab;
         drop.textContent = r.resolution;
 
         if (r.bgIsRandom) {
-            setBackground(r.today_bg,r.resolution);
+            setBackground(r.today_bg, r.resolution);
         } else {
             // todo custom image
         }
@@ -438,11 +415,24 @@
         }
     }
 
+    let showMessage = (title, message, type = INFO) => {
+        let _notify = document.getElementById('notifications-tc');
+        _notify.innerHTML = `<div id="notification" class="notification animated bounceInDown notification-` + type + `">
+                             <h4 id="notification-title" class="notification-title" googl="true">` + title + `</h4>
+                             <div id="notification-message" class="notification-message">` + message + `</div>
+                             </div>`;
+        notificationTimer = setTimeout(function () {
+            let no = document.getElementById('notification');
+            no.classList.remove('bounceInDown');
+            no.classList.add('bounceOutUp');
+        }, 2000);
+    };
+
     let randomBackground = (resolution) => {
         let _today_ = new Date();
         let dd = _today_.getDate(), mm = _today_.getMonth() + 1, yyyy = _today_.getFullYear();
         let xhr = new XMLHttpRequest();
-        xhr.open("GET", 'https://source.unsplash.com/user/tracyda/likes/'+resolution);
+        xhr.open("GET", 'https://source.unsplash.com/user/tracyda/likes/' + resolution);
         xhr.addEventListener("load", function storeRedirectUrl() {
             let bg = document.getElementById('bg');
             bg.style.backgroundImage = 'url(' + this.responseURL + ')';
@@ -458,7 +448,7 @@
         xhr.send();
     };
 
-    let setBackground = async (today_bg,resolution) => {
+    let setBackground = async (today_bg, resolution) => {
         let _today_ = new Date();
         let dd = _today_.getDate(), mm = _today_.getMonth() + 1, yyyy = _today_.getFullYear();
         if (!today_bg || today_bg[0] !== [yyyy, mm, dd].join('-')) {
@@ -500,6 +490,8 @@
         browser.downloads.download({
             url: download_url,
             filename: tmp[tmp.length - 1] + '.jpg',
+        }).then(() => {
+            showMessage('Success', 'File name is ' + tmp[tmp.length - 1] + '.jpg', SUCCESS)
         });
     };
 
