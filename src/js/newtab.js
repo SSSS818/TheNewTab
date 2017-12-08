@@ -50,11 +50,26 @@
         SUCCESS = "success",
         ERROR = "error";
 
-    let fileData = null,
+    let download,
+        local,
+        fileData = null,
         currentTabs = DEFAULT_TABS,
         captureMode = false,
         notificationTimer = null;
-    let download = browser.downloads.download, local = browser.storage.local;
+
+
+    // Firefox 1.0+
+    let isFirefox = typeof InstallTrigger !== 'undefined';
+    // Chrome 1+
+    let isChrome = !!window.chrome && !!window.chrome.webstore;
+
+    if (isFirefox) {
+        download = browser.downloads.download, local = browser.storage.local;
+    } else if (isChrome) {
+        download = chrome.downloads, local = chrome.storage.local;
+    } else {
+        return
+    }
 
 
     /**
@@ -404,7 +419,7 @@
                 tabs: DEFAULT_TABS,
                 sites: DEFAULT_SITES,
                 bgIsRandom: true,
-                today_bg: [[yyyy, mm, dd].join('-'), 'http://liubai.qiniudn.com/0001.jpg'],
+                today_bg: [[yyyy, mm, dd].join('-'), './images/bg1.jpg'],
                 resolution: '1920x1080'
             };
             local.set(tmp);

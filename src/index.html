@@ -16,22 +16,22 @@
 </div>
 
 <button id="settings-button"
-        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 10px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 10px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.8;"
         aria-haspopup="true">
     <img src="images/add.png" style="width: 36px;vertical-align: top;">
 </button>
 <button id="save-button"
-        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 50px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 50px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.8;"
         aria-haspopup="true">
     <img src="images/save.png" style="width: 36px;vertical-align: top;">
 </button>
 <button id="refresh-button"
-        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 90px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 90px;offset-inline-start: 12px;border: none;background: none;z-index: 20;opacity: 0.8;"
         aria-haspopup="true">
     <img src="images/refresh.png" style="width: 36px;vertical-align: top;">
 </button>
 <button id="trash-button"
-        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 10px;offset-inline-end: 12px;border: none;background: none;z-index: 20;opacity: 0.5;"
+        style="padding: 5px 0 0 0;position: fixed;cursor: pointer;top: 10px;offset-inline-end: 12px;border: none;background: none;z-index: 20;opacity: 0.8;"
         aria-haspopup="true">
     <img src="images/trash.svg" style="width: 36px;vertical-align: top;">
 </button>
@@ -50,11 +50,10 @@
         <div class="main-page">
             <main>
                 <div class="search-center">
-                    <div class="search-wrapper fade-in">
+                    <div class="search-wrapper">
                         <label for="newtab-search-text" class="search-label">
                         </label>
                         <input id="newtab-search-text" maxlength=256 placeholder="Search" autocomplete="off"
-                               aria-autocomplete="true" aria-controls="searchSuggestionTable" aria-expanded="false"
                                type="search"/>
                         <button id="searchSubmit" class="search-button" title="搜索">
                         </button>
@@ -78,16 +77,23 @@
             <aside class="sidebar">
                 <header>Welcome</header>
                 <nav class="sidebar-nav">
-                    <ul>
-                        <li><a href="#"><img src="images/settings.png"/><span>Settings</span></a></li>
+                    <ul role="menu">
+                        <li id="tab-item" role="menuitem">
+                            <i class="fa fa-cog" aria-hidden="true"></i>
+                            <span>Tabs</span>
+                        </li>
+                        <li id="bg-item" role="menuitem" class="disabled-menu">
+                            <i class="fa fa-file-image-o" aria-hidden="true"></i>
+                            <span>Background</span>
+                        </li>
                     </ul>
                 </nav>
             </aside>
         </section>
         <div class="nav-main-wrap">
-            <div class="shadow" style="margin: 40px 50px 0;background-color: #ffffff">
-                <div>
-                    <span style="display: inline-block;margin: 15px 1.2em 15px 1em;vertical-align: top;">
+            <div id="tab-settings" class="shadow" style="margin: 40px 50px 0;background-color: #ffffff">
+                <div style="padding:10px 20px;">
+                    <span style="display: inline-block;margin: 15px;vertical-align: top;">
                         Open in new tab
                     </span>
                     <label style="display: inline-block">
@@ -97,16 +103,19 @@
                         </div>
                     </label>
                 </div>
-                <label class="button-label">resolution</label>
-                <div class="dropdown">
-                    <button id="drop-down" class="dropbtn"></button>
-                    <div id="myDropdown" class="dropdown-content">
-                        <a id="resolution-1280">1280 x 720</a>
-                        <a id="resolution-1920">1920 x 1080</a>
-                        <a id="resolution-2560">2560 x 1440</a>
+                <div style="padding: 0 20px;">
+                    <label class="button-label">resolution</label>
+                    <div class="dropdown">
+                        <button id="drop-down" class="dropbtn"></button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <a id="resolution-1280">1280 x 720</a>
+                            <a id="resolution-1920">1920 x 1080</a>
+                            <a id="resolution-2560">2560 x 1440</a>
+                        </div>
                     </div>
                 </div>
-                <form style="width: 400px">
+
+                <form id="tab-form" style="width: 400px;padding: 10px 20px;">
                     <label class="button-label">Site url</label>
                     <div class="normal-input">
                         <input id="newTabUrl" placeholder="Type link" class="normal-input-inner"
@@ -119,12 +128,12 @@
                                autocomplete="off" googl="true" type="text">
                         <div id="newTabName-error" class="input-error"></div>
                     </div>
-                    <div id="drop-box">
-                        <label id="drop-zone" class="drop-zone" for="file-input" googl="true">
+                    <div id="drop-site-box">
+                        <label id="drop-site-zone" class="drop-site-zone" for="file-site-input" googl="true">
                             <img src="images/upload.svg" style="width: 47px;padding-top: 12px;"/>
                             <p>Drop files here</p>
                         </label>
-                        <input id="file-input" type="file" style="display: none">
+                        <input id="file-site-input" type="file" style="display: none">
                     </div>
                     <div style="padding: 15px">
                         <button id="submitNewTab" class="normal-button normal-button-green shadow" type="button"
@@ -135,8 +144,6 @@
                             <span>Reset</span></button>
                     </div>
                 </form>
-
-
             </div>
         </div>
         <button id="settings-close" class="onboarding-close-btn" title="关闭"></button>
@@ -146,4 +153,5 @@
 <script type="text/javascript" src="js/newtab.js"></script>
 <script type="text/javascript" src="js/chart.min.js"></script>
 </body>
+<link href="css/font-awesome.min.css" rel="stylesheet">
 </html>
