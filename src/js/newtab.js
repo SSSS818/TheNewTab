@@ -9,39 +9,33 @@
     window.NewTab = factory();
 })(function newTabFactory() {
     "use strict";
-    let fileData = null,
-        currentTabs = null,
-        captureMode = false,
-        notificationTimer = null;
-    let download = browser.downloads.download, local = browser.storage.local;
     /**
      * @const
      */
     let DEFAULT_SITES = {
-            "微博": ["weibo.png", "https://weibo.com/"],
-            "知乎": ["zhihu.png", "https://www.zhihu.com/"],
-            "什么值得买": ["smzdm.png", "https://www.smzdm.com/"],
-            "Twitter": ["twitter.png", "https://twitter.com/"],
-            "哔哩哔哩": ["bilibili.png", "https://www.bilibili.com/"],
-            "Dribbble": ["dribbble.png", "https://dribbble.com/"],
-            "Stackoverflow": ["stackoverflow.png", "https://stackoverflow.com/"],
-            "Tumblr": ["tumblr.png", "https://tumblr.com/"],
-            "Github": ["github.png", "https://github.com/"],
-            "淘宝": ["taobao.png", "https://taobao.com/"],
-            "500px": ["500px.png", "https://500px.com/"],
-            "Google+": ["googleplus.png", "https://plus.google.com/"],
-            "斗鱼": ["douyu.png", "https://douyu.com/"],
-            "图虫": ["tuchong.png", "https://tuchong.com/"],
-            "v2ex": ["v2ex.png", "https://v2ex.com/"],
-            "instagram": ["instagram.png", "https://instagram.com/"],
-            "chiphell": ["chiphell.png", "https://chiphell.com/"],
-            "Reddit": ["reddit.png", "https://reddit.com/"]
+            "微博": ["weibo.png", "https://weibo.com"],
+            "知乎": ["zhihu.png", "https://www.zhihu.com"],
+            "什么值得买": ["smzdm.png", "https://www.smzdm.com"],
+            "Twitter": ["twitter.png", "https://twitter.com"],
+            "哔哩哔哩": ["bilibili.png", "https://www.bilibili.com"],
+            "Dribbble": ["dribbble.png", "https://dribbble.com"],
+            "Stackoverflow": ["stackoverflow.png", "https://stackoverflow.com"],
+            "Tumblr": ["tumblr.png", "https://tumblr.com"],
+            "Github": ["github.png", "https://github.com"],
+            "淘宝": ["taobao.png", "https://taobao.com"],
+            "500px": ["500px.png", "https://500px.com"],
+            "Google+": ["googleplus.png", "https://plus.google.com"],
+            "斗鱼": ["douyu.png", "https://douyu.com"],
+            "图虫": ["tuchong.png", "https://tuchong.com"],
+            "v2ex": ["v2ex.png", "https://www.v2ex.com"],
+            "instagram": ["instagram.png", "https://instagram.com"],
+            "chiphell": ["chiphell.png", "https://chiphell.com"],
+            "Reddit": ["reddit.png", "https://reddit.com"]
         },
         DEFAULT_TABS = [
             "知乎", "微博", "哔哩哔哩", "Twitter", "Dribbble", "什么值得买", "Stackoverflow", "Tumblr", "Github", "淘宝", "500px", "Google+", "斗鱼", "Reddit", "图虫", "v2ex", "instagram", "chiphell"
         ],
         DEFAULT_CONFIG = {
-            is_1st: false,
             isOpenNewTab: true,
             tabs: DEFAULT_TABS,
             sites: DEFAULT_SITES,
@@ -49,10 +43,18 @@
             today_bg: [],
             resolution: '1920x1080'
         },
+        MAX_IMG_SIZE = 100,
         UNKNOWN = "unknown.jpg",
         INFO = "info",
         SUCCESS = "success",
         ERROR = "error";
+
+    let fileData = null,
+        currentTabs = DEFAULT_TABS,
+        captureMode = false,
+        notificationTimer = null;
+    let download = browser.downloads.download, local = browser.storage.local;
+
 
     /**
      * @class TrashButton
@@ -193,10 +195,14 @@
             evt.stopPropagation();
             evt.preventDefault();
             let f = evt.dataTransfer.files[0];
-            if (f.size > 1024 * 60) {
-                alert('Your image is too large, we suggest you use an image less than 60kb')
+            if (this.el.id === 'drop-bg-zone') {
+                console.log(evt.dataTransfer.items[0])
             } else {
-                getBase64(f)
+                if (f.size > 1024 * MAX_IMG_SIZE) {
+                    alert('Your image is too large, we suggest you use an image less than ' + MAX_IMG_SIZE + 'kb')
+                } else {
+                    getBase64(f)
+                }
             }
         };
 
@@ -224,8 +230,8 @@
         let searchInput = document.getElementById('newtab-search-text');
         let suggestList = document.getElementById('contentSearchSuggestionsList');
         let bin = document.getElementById('trash-button');
-        let dropZone = document.getElementById('drop-zone');
-        new DropZone(dropZone);
+        let dropSite = document.getElementById('drop-site-zone');
+        new DropZone(dropSite);
         new TrashButton(bin);
         new SearchInput(searchInput);
         new SuggestList(suggestList);
@@ -258,7 +264,8 @@
 
         // settings button
         document.getElementById('settings-button').onclick = () => {
-            document.getElementById('settings-dialog').style.display = "block";
+            let settingsDialog = document.getElementById('settings-dialog');
+            settingsDialog.style.display = "block";
         };
         // save button
         document.getElementById('save-button').onclick = saveBg;
@@ -272,14 +279,26 @@
         // reset button
         document.getElementById('resetNewTab').onclick = () => {
             local.set(DEFAULT_CONFIG);
-            _renderPage(DEFAULT_CONFIG)
+            _renderPage(DEFAULT_CONFIG);
+            showMessage('Success', 'Settings have been reset', SUCCESS)
         };
         // close settings
         document.getElementById('settings-close').onclick = () => {
             document.getElementById('settings-dialog').style.display = "none";
-            // todo clear data
+            // clear form
+            document.getElementById('tab-form').reset();
+            let zone = document.getElementById('drop-site-zone');
+            zone.innerHTML = `<img src="images/upload.svg" style="width: 47px;padding-top: 12px;"/><p>Drop files here</p>`
+            zone.classList.add('drop-site-zone');
+
+            let urlError = document.getElementById('newTabUrl-error');
+            urlError.innerHTML = '';
+            urlError.style.display = 'block';
+            let nameError = document.getElementById('newTabName-error');
+            nameError.innerHTML = '';
+            nameError.style.display = 'block';
         };
-        // todo default bg change animation
+        // todo local image
         // set open in new tab
         document.getElementById('isOpenNewTab').onclick = function (e) {
             local.set({
@@ -294,9 +313,13 @@
         };
 
         // setup the drop listeners. todo store image to db
-        let fileInput = document.getElementById('file-input');
-        fileInput.addEventListener('change', (evt) => {
-            getBase64(evt.target.files[0]);
+        let siteInput = document.getElementById('file-site-input');
+        siteInput.addEventListener('change', (evt) => {
+            if (evt.target.files[0].size > 1024 * MAX_IMG_SIZE) {
+                alert('Your image is too large, we suggest you use an image less than ' + MAX_IMG_SIZE + 'kb')
+            } else {
+                getBase64(evt.target.files[0]);
+            }
         }, false);
 
         let submitNewTab = document.getElementById('submitNewTab');
@@ -304,19 +327,22 @@
             let newTabName = document.getElementById('newTabName');
             let newTabUrl = document.getElementById('newTabUrl');
             if (!validateUrl(newTabUrl.value)) {
-                document.getElementById('newTabUrl-error').innerHTML = 'Invalid url';
-                document.getElementById('newTabUrl-error').style.display = 'block';
+                let urlError = document.getElementById('newTabUrl-error');
+                urlError.innerHTML = 'Invalid url';
+                urlError.style.display = 'block';
                 showMessage('Error', 'Invalid input', ERROR);
                 return;
             }
             local.get({tabs: DEFAULT_TABS, sites: DEFAULT_SITES, isOpenNewTab: true}).then((r) => {
                 if (!newTabName.value) {
-                    document.getElementById('newTabName-error').innerHTML = 'Please type your site name';
-                    document.getElementById('newTabName-error').style.display = 'block';
+                    let nameError = document.getElementById('newTabName-error');
+                    nameError.innerHTML = 'Please type your site name';
+                    nameError.style.display = 'block';
                     showMessage('Error', 'Invalid input', ERROR);
                 } else if (newTabName.value in r.tabs) {
-                    document.getElementById('newTabName-error').innerHTML = 'Site name already exist';
-                    document.getElementById('newTabName-error').style.display = 'block';
+                    let nameError = document.getElementById('newTabName-error');
+                    nameError.innerHTML = 'Site name already exist';
+                    nameError.style.display = 'block';
                     showMessage('Error', 'Invalid input', ERROR);
                 } else {
                     let tmp_sites = r.sites, tmp_tabs = r.tabs;
@@ -342,13 +368,22 @@
     // todo add cloud sync
     let _getUserConfig = async () => {
         let r = await local.get(DEFAULT_CONFIG);
-        if (r.is_1st) {
-            await local.set(DEFAULT_CONFIG);
+        if ('is_1st' in r) {
+            let tmp = {
+                is_1st: false,
+                isOpenNewTab: true,
+                tabs: DEFAULT_TABS,
+                sites: DEFAULT_SITES,
+                bgIsRandom: true,
+                today_bg: [],
+                resolution: '1920x1080'
+            };
+            await local.set(tmp);
+            return tmp;
+        } else {
+            currentTabs = r.tabs;
+            return r;
         }
-        currentTabs = r.tabs;
-        // todo console
-        console.log(r);
-        return r;
     };
 
     let _genAtom = (title, link, img, isOpenNewTab) => {
@@ -362,7 +397,7 @@
         let target = isOpenNewTab ? "_blank" : '';
         return `<li class="top-site-outer" id="` + title + `">
                 <a href="` + link + `" target=` + target + `>
-                    <div title="` + title + `" class="tile fade-in">
+                    <div title="` + title + `" class="tile">
                         <div class="logo" style="background-image: ` + bg + `"></div>
                     </div>
                 </a>
@@ -374,8 +409,9 @@
             drop = document.getElementById('drop-down');
         openNewTabToggle.checked = r.isOpenNewTab;
         drop.textContent = r.resolution;
-
-        if (r.bgIsRandom) {
+        if (!('is_1st' in r)) {
+            document.getElementById('bg').style.backgroundImage = 'url(./images/bg1.jpg)';
+        } else if (r.bgIsRandom) {
             setBackground(r.today_bg, r.resolution);
         } else {
             // todo custom image
@@ -439,9 +475,9 @@
             let bg = document.getElementById('bg');
             bg.classList.add('fade-in');
             bg.style.backgroundImage = 'url(' + this.responseURL + ')';
-            setTimeout(()=>{
+            setTimeout(() => {
                 bg.classList.remove('fade-in');
-            },500);
+            }, 500);
             bg.classList.remove('frosting');
             document.getElementById('loader').style.display = 'none';
             local.set({
@@ -478,8 +514,8 @@
         if (file) {
             reader.readAsDataURL(file);
             reader.onload = () => {
-                document.getElementById('drop-zone').innerHTML = '<img class="thumb shadow" style="border-radius: 50%" src="' + reader.result + '"/>';
-                document.getElementById('drop-zone').className = '';
+                document.getElementById('drop-site-zone').innerHTML = '<img class="thumb shadow" style="border-radius: 50%" src="' + reader.result + '"/>';
+                document.getElementById('drop-site-zone').className = '';
                 fileData = reader.result;
                 console.log(fileData)
             };
@@ -496,16 +532,6 @@
         }).then(() => {
             showMessage('Success', 'File name is ' + tmp[tmp.length - 1] + '.jpg', SUCCESS)
         });
-    };
-
-    let sortDict = (dict) => {
-        let items = Object.keys(dict).map(function (key) {
-            return [key, dict[key]];
-        });
-        items.sort(function (first, second) {
-            return second[1] - first[1];
-        });
-        return items;
     };
 
     let validateUrl = (str) => {
