@@ -36,6 +36,7 @@
             "知乎", "微博", "哔哩哔哩", "Twitter", "Dribbble", "什么值得买", "Stackoverflow", "Tumblr", "Github", "淘宝", "500px", "Google+", "斗鱼", "Reddit", "图虫", "v2ex", "instagram", "chiphell"
         ],
         DEFAULT_CONFIG = {
+            is_1st: true,
             isOpenNewTab: true,
             tabs: DEFAULT_TABS,
             sites: DEFAULT_SITES,
@@ -196,7 +197,7 @@
             evt.preventDefault();
             let f = evt.dataTransfer.files[0];
             if (this.el.id === 'drop-bg-zone') {
-                console.log(evt.dataTransfer.items[0])
+                //console.log(evt.dataTransfer.items[0])
             } else {
                 if (f.size > 1024 * MAX_IMG_SIZE) {
                     alert('Your image is too large, we suggest you use an image less than ' + MAX_IMG_SIZE + 'kb')
@@ -367,23 +368,7 @@
 
     // todo add cloud sync
     let _getUserConfig = async () => {
-        let r = await local.get(DEFAULT_CONFIG);
-        if ('is_1st' in r) {
-            let tmp = {
-                is_1st: false,
-                isOpenNewTab: true,
-                tabs: DEFAULT_TABS,
-                sites: DEFAULT_SITES,
-                bgIsRandom: true,
-                today_bg: [],
-                resolution: '1920x1080'
-            };
-            await local.set(tmp);
-            return tmp;
-        } else {
-            currentTabs = r.tabs;
-            return r;
-        }
+        return await local.get(DEFAULT_CONFIG);
     };
 
     let _genAtom = (title, link, img, isOpenNewTab) => {
@@ -409,14 +394,25 @@
             drop = document.getElementById('drop-down');
         openNewTabToggle.checked = r.isOpenNewTab;
         drop.textContent = r.resolution;
-        if (!('is_1st' in r)) {
+        if (r.is_1st) {
             document.getElementById('bg').style.backgroundImage = 'url(./images/bg1.jpg)';
+            let _today_ = new Date();
+            let dd = _today_.getDate(), mm = _today_.getMonth() + 1, yyyy = _today_.getFullYear();
+            let tmp = {
+                is_1st: false,
+                isOpenNewTab: true,
+                tabs: DEFAULT_TABS,
+                sites: DEFAULT_SITES,
+                bgIsRandom: true,
+                today_bg: [[yyyy, mm, dd].join('-'), 'http://liubai.qiniudn.com/0001.jpg'],
+                resolution: '1920x1080'
+            };
+            local.set(tmp);
         } else if (r.bgIsRandom) {
             setBackground(r.today_bg, r.resolution);
         } else {
             // todo custom image
         }
-
         r.tabs.forEach((val) => {
             let img = r.sites[val][0] ? r.sites[val][0] : UNKNOWN;
             sites += _genAtom(val, r.sites[val][1], img, r.isOpenNewTab);
@@ -491,7 +487,7 @@
         let _today_ = new Date();
         let dd = _today_.getDate(), mm = _today_.getMonth() + 1, yyyy = _today_.getFullYear();
         if (!today_bg || today_bg[0] !== [yyyy, mm, dd].join('-')) {
-            await randomBackground(resolution)
+            await randomBackground(resolution);
         } else {
             document.getElementById('bg').style.backgroundImage = 'url(' + today_bg[1] + ')';
         }
@@ -517,7 +513,7 @@
                 document.getElementById('drop-site-zone').innerHTML = '<img class="thumb shadow" style="border-radius: 50%" src="' + reader.result + '"/>';
                 document.getElementById('drop-site-zone').className = '';
                 fileData = reader.result;
-                console.log(fileData)
+                //console.log(fileData)
             };
         }
 
