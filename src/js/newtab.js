@@ -143,7 +143,7 @@
         this.init = true;
 
         this.onFocus = () => {
-            let table = document.getElementById('contentSearchSuggestionsList');
+            let table = document.getElementById('searchSuggestionsList');
             if (table.childNodes[0].childNodes.length > 0) {
                 table.style.display = 'block';
             }
@@ -240,11 +240,11 @@
         "use strict";
         _getUserConfig().then(_renderPage);
         // make sites sortable
-        let el = document.getElementById('top-sites');
+        let el = document.getElementById('tabs-wrapper');
         Sortable.create(el);
 
-        let searchInput = document.getElementById('newtab-search-text');
-        let suggestList = document.getElementById('contentSearchSuggestionsList');
+        let searchInput = document.getElementById('search-text');
+        let suggestList = document.getElementById('searchSuggestionsList');
         let bin = document.getElementById('trash-button');
         let dropSite = document.getElementById('drop-site-zone');
         new DropZone(dropSite);
@@ -257,7 +257,7 @@
         function changeResolution(e) {
             e.preventDefault();
             let resolute = {1280: '1280x720', 1920: '1920x1080', 2560: '2560x1440'}[this.id.slice(11)];
-            document.getElementById('drop-down').textContent = resolute;
+            document.getElementById('drop-button').textContent = resolute;
             local.set({
                 resolution: resolute
             }).then(() => {
@@ -325,7 +325,7 @@
         };
         // search submit
         document.getElementById('searchSubmit').onclick = () => {
-            openSearchTab(document.getElementById('newtab-search-text').value);
+            openSearchTab(document.getElementById('search-text').value);
         };
 
         // setup the drop listeners. todo store image to db
@@ -368,7 +368,7 @@
                         tabs: tmp_tabs,
                         sites: tmp_sites,
                     });
-                    document.getElementById('top-sites').innerHTML += _genAtom(newTabName.value, newTabUrl.value, fileData, r.isOpenNewTab);
+                    document.getElementById('tabs-wrapper').innerHTML += _genAtom(newTabName.value, newTabUrl.value, fileData, r.isOpenNewTab);
                     // reset fileData
                     fileData = null;
                 }
@@ -395,7 +395,7 @@
             link = 'http://' + link
         }
         let target = isOpenNewTab ? "_blank" : '';
-        return `<li class="top-site-outer" id="` + title + `">
+        return `<li class="tabs-item" id="` + title + `">
                 <a href="` + link + `" target=` + target + `>
                     <div title="` + title + `" class="tile">
                         <div class="logo" style="background-image: ` + bg + `"></div>
@@ -406,7 +406,7 @@
 
     let _renderPage = (r) => {
         let sites = '', openNewTabToggle = document.getElementById('isOpenNewTab'),
-            drop = document.getElementById('drop-down');
+            drop = document.getElementById('drop-button');
         openNewTabToggle.checked = r.isOpenNewTab;
         drop.textContent = r.resolution;
         if (r.is_1st) {
@@ -432,7 +432,7 @@
             let img = r.sites[val][0] ? r.sites[val][0] : UNKNOWN;
             sites += _genAtom(val, r.sites[val][1], img, r.isOpenNewTab);
         });
-        document.getElementById('top-sites').innerHTML = sites;
+        document.getElementById('tabs-wrapper').innerHTML = sites;
     };
 
     let _on = (el, event, fn) => {
@@ -441,15 +441,15 @@
 
     // search
     function _genSuggests() {
-        let suggest = document.getElementById('contentSearchSuggestionsList');
+        let suggest = document.getElementById('searchSuggestionsList');
         if (this.responseText.startsWith('[')) {
             let data = JSON.parse(this.responseText);
             let item = '';
             data[1].forEach((val, index) => {
                 // select first 6 items
                 if (index < 6) {
-                    item += `<tr id="selectedRow` + index + `" dir="auto" class="contentSearchSuggestionRow remote" role="presentation">
-                        <td class="contentSearchSuggestionEntry" role="option" aria-selected=false>
+                    item += `<tr id="selectedRow` + index + `" dir="auto" class="searchSuggestionRow remote" role="presentation">
+                        <td class="searchSuggestionEntry" role="option" aria-selected=false>
                             <span id="searchSuggestion` + index + `">` + val + `</span>
                         </td>
                      </tr>`;
@@ -517,7 +517,7 @@
                 window.open(SearchMap.google(text));
                 break;
         }
-        document.getElementById('contentSearchSuggestionsList').style.display = 'none'
+        document.getElementById('searchSuggestionsList').style.display = 'none'
     };
 
     let getBase64 = (file) => {
@@ -525,7 +525,7 @@
         if (file) {
             reader.readAsDataURL(file);
             reader.onload = () => {
-                document.getElementById('drop-site-zone').innerHTML = '<img class="thumb shadow" style="border-radius: 50%" src="' + reader.result + '"/>';
+                document.getElementById('drop-site-zone').innerHTML = '<img class="shadow" style="border-radius: 50%;width: 100%;height: 100%;" src="' + reader.result + '"/>';
                 document.getElementById('drop-site-zone').className = '';
                 fileData = reader.result;
                 //console.log(fileData)

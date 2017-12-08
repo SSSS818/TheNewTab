@@ -35,7 +35,8 @@
         aria-haspopup="true">
     <img src="images/trash.svg" style="width: 36px;vertical-align: top;">
 </button>
-<div id="app">
+
+<div style="height: 100%;">
     <div id="loader" style="z-index: 3000" hidden>
         <div class="dot"></div>
         <div class="dot"></div>
@@ -49,22 +50,17 @@
     <div id="bg">
         <div class="main-page">
             <main>
-                <div class="search-center">
+                <div style="padding: 0 180px;">
                     <div class="search-wrapper">
-                        <label for="newtab-search-text" class="search-label">
-                        </label>
-                        <input id="newtab-search-text" maxlength=256 placeholder="Search" autocomplete="off"
-                               type="search"/>
-                        <button id="searchSubmit" class="search-button" title="搜索">
-                        </button>
-                        <table id="contentSearchSuggestionsList" class="contentSearchSuggestionTable"
-                               role="presentation"
-                               style="top: 36px;min-width: 430px;max-width: 1048px;left: 32px;padding: 0 0 5px;" hidden>
+                        <label for="search-text" class="search-label"></label>
+                        <input id="search-text" maxlength=256 placeholder="Search" autocomplete="off" type="search"/>
+                        <button id="searchSubmit" class="search-button"></button>
+                        <table id="searchSuggestionsList" class="searchSuggestionTable" role="presentation" hidden>
                         </table>
                     </div>
                 </div>
-                <section class="top-sites" style="margin-bottom: 40px">
-                    <ul class="top-sites-list" id="top-sites">
+                <section style="margin-bottom: 40px">
+                    <ul class="tabs-list" id="tabs-wrapper">
                     </ul>
                 </section>
             </main>
@@ -73,7 +69,7 @@
 </div>
 <div id="settings-dialog" style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 2000;display: none;">
     <div id="settings-page" role="dialog">
-        <section class="app">
+        <section>
             <aside class="sidebar">
                 <header>Welcome</header>
                 <nav class="sidebar-nav">
@@ -106,8 +102,8 @@
                 <div style="padding: 0 20px;">
                     <label class="button-label">resolution</label>
                     <div class="dropdown">
-                        <button id="drop-down" class="dropbtn"></button>
-                        <div id="myDropdown" class="dropdown-content">
+                        <button id="drop-button" class="dropbtn"></button>
+                        <div class="dropdown-content">
                             <a id="resolution-1280">1280 x 720</a>
                             <a id="resolution-1920">1920 x 1080</a>
                             <a id="resolution-2560">2560 x 1440</a>
@@ -146,12 +142,11 @@
                 </form>
             </div>
         </div>
-        <button id="settings-close" class="onboarding-close-btn" title="关闭"></button>
+        <i class="fa fa-times onboarding-close-btn" id="settings-close" aria-hidden="true"></i>
     </div>
 </div>
 <script type="text/javascript" src="js/sortable.min.js"></script>
 <script type="text/javascript" src="js/newtab.js"></script>
-<script type="text/javascript" src="js/chart.min.js"></script>
 </body>
 <link href="css/font-awesome.min.css" rel="stylesheet">
 </html>
