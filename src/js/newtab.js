@@ -537,6 +537,7 @@
     let saveBg = () => {
         let download_url = document.getElementById('bg').style.backgroundImage.slice(5, -2);
         let tmp = download_url.split('=');
+        //todo default
         download({
             url: download_url,
             filename: tmp[tmp.length - 1] + '.jpg',
