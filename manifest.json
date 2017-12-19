@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "TheNewTab",
   "version": "1.0.0",
-  "description": "Make it easier, make it better",
+  "description": "A brilliant newtab",
   "icons": {
     "96": "src/images/icon-96.png"
   },
@@ -15,7 +15,8 @@
   "applications": {
     "gecko": {
       "id": "tracyliubai@gmail.com",
-      "strict_min_version": "54"
+      "strict_min_version": "55.0a1",
+      "strict_max_version": "58.*"
     }
   },
   "permissions": [
